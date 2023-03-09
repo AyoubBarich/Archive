@@ -1,0 +1,23 @@
+ def is_complete(self, verbose = False):
+        """
+        :return: True if the automaton is complete, False otherwise
+        """
+        # Loop over source states
+        correctness = True
+        for source in self.trans:
+            lettersAreMet = True
+            # Loop letters in the alphabet
+            for letter in self.alphabet:
+                # Check if all the letters in the alphabet
+                # are meant amongst the labels
+                met = False
+                if source in self.trans:
+                    for label in self.trans[source]:
+                        if (letter == label):
+                            # We found the letters amongst the labels
+                            met = True
+                    if not(met) and verbose : print("There is no ", letter, " transition from", source) 
+                    lettersAreMet = lettersAreMet and met
+                else: print("There is no transition from", source) 
+            correctness = correctness and lettersAreMet
+        return correctness
