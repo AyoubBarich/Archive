@@ -16,7 +16,7 @@ final = {2,3}
 A = Automata(Sigma, states, trans, ini, final)
 
 
-print(set() in {2,3})
+print(A.is_empty())
 
 """
 

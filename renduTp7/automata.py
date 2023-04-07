@@ -375,37 +375,41 @@ class Automata:
         return: returns a the equivalent deterministic aytomaton to self
         
         """
-        
+        #we initialze our determinitic automaton
         sigma = self.alphabet
         ini = {0}
         trans= {}
         final =set()
-        Explored = [self.ini]
-        WaitList = []
-        
+        explored = [self.ini]
+        wait = []
+        #our waiting list that contants (index of our state ,label )
         for sig in self.alphabet:
-            WaitList.append((0,sig))
-        
-        while WaitList != []:
-            
-            (X,Label) =WaitList.pop()
-     
-            Y =self.compute_next(Explored[X],Label)
-            
-            if Y not in Explored :
-                Explored.append(Y)
-                addition = [(Explored.index(Y),sig) for sig in self.alphabet]
-                WaitList = WaitList + addition
-            if not(X in trans.keys()):
-                trans[X]={}
-            if not(Label in trans[X]):
-                trans[X][Label]=set()
-            trans[X][Label].add(Explored.index(Y))
-        
-        for X in Explored:
+            wait.append((0,sig))
+        #we go through all the stetse of our automaton and we apply the determize algorithm
+        while wait != []:
+            #we extract the first element in the waiting list
+            element =wait.pop()
+            #we store the values in there respective variables
+            Stateindex =element[0]
+            Statealpha = element[1]
+            #we compute the next state
+            Y =self.compute_next(explored[Stateindex],Statealpha)
+            #we add the the explored states to our list and we remove it from the waiting list
+            if Y not in explored :
+                explored.append(Y)
+                addition = [(explored.index(Y),sig) for sig in self.alphabet]
+                wait = wait + addition
+            #we chekc if we can add our next state to our transition dictionnary
+            if not(Stateindex in trans.keys()):
+                trans[Stateindex]={}
+            if not(Statealpha in trans[Stateindex]):
+                trans[Stateindex][Statealpha]=set()
+            trans[Stateindex][Statealpha].add(explored.index(Y))
+        #we add all the final states
+        for X in explored:
             if not(X in self.final):
-                final.add(Explored.index(X))
-        B=Automata(sigma,Explored,trans,ini,final)
+                final.add(explored.index(X))
+        B=Automata(sigma,explored,trans,ini,final)
 
         return B
    

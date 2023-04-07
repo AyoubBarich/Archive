@@ -56,13 +56,7 @@ trans_4 = {
     1: {}
 }
 B4 = Automata(Sigma, states_4, trans_4, ini_4, final_4)
-print((B4.determinize()).__str__())
-
-
-
-
-
-  
+print(B4.trim().__str__())
 # for B in [B1, B2, B3, B4]:
 #     print("***   New Automaton  ***")
 #     B.__str__()

@@ -1,4 +1,406 @@
- def is_complete(self, verbose = False):
+
+ 
+    def union(self,other):
+        """
+        :param other: an automaton
+        :return: a new automaton whose language is the union
+        """
+        if self.is_empty(): return other
+        if other.is_empty(): return self
+
+        new_states = {(s,0) for s in self.states} | {(s,1) for s in other.states}
+        new_ini = {(s,0) for s in self.ini} | {(s,1) for s in other.ini}
+        new_final = {(s,0) for s in self.final} | {(s,1) for s in other.final}
+        
+        A = Automata(self.alphabet, new_states, {}, new_ini, new_final)
+
+        for source in new_states:
+            if source[1] == 0 :     # dans premier automate
+                if source[0] in self.trans:
+                    for label in self.trans[source[0]]:
+                        if label in self.trans[source[0]]:
+                            for target in self.trans[source[0]][label]:
+                                A.add_transition(source, label, (target,0))
+            
+            if source[1] == 1 :     # dans deuxième automate
+                if source[0] in other.trans:
+                    for label in other.trans[source[0]]:
+                        if label in other.trans[source[0]]:
+                            for target in other.trans[source[0]][label]:
+                                A.add_transition(source, label, (target,1))
+        return A
+Y'a certainement mieux
+Mais j'ai ça, en supposant que on veux bien l'union disjointes des automates
+Beline_21 — 03/07/2023 4:50 PM
+Merci beaucoup @boule 😄
+boule — 03/07/2023 4:50 PM
+doucement speedruneur 
+Tututututututhur Sandstorm — 03/07/2023 4:50 PM
+JAMAIS
+Je me suis fait une pause de 30 min ou plus déjà
+boule — 03/07/2023 4:51 PM
+je finis de manger je fais le tp 5 ;3
+Tututututututhur Sandstorm — 03/07/2023 4:51 PM
+Doom Keeper c'est drole. Mais le deuxieme perso est ultra chiant a manipuler
+boule — 03/07/2023 4:51 PM
+je commence bb à peine (fin j'ai fait quelque chose en tp cv)
+Tututututututhur Sandstorm — 03/07/2023 4:51 PM
+Dome pas Doom 
+boule — 03/07/2023 4:51 PM
+je comprends pas le protugais
+dsl
+Tututututututhur Sandstorm — 03/07/2023 4:52 PM
+Ramène toi chez moi et je te cravache pour que tu travaille vite
+boule — 03/07/2023 4:52 PM
+ok
+après  on bosse analyse?
+Tututututututhur Sandstorm — 03/07/2023 4:52 PM
+Je ferais Mips perso
+boule — 03/07/2023 4:53 PM
+*meep => mips
+anyway je ramene mon cahier danalyse car le partiel me fait stresser
+j'arrive dans 15 min
+Tututututututhur Sandstorm — 03/07/2023 4:55 PM
+Azy chuad
+J'habite au 5 rue pierre Leca
+Tututututututhur Sandstorm — 03/07/2023 7:03 PM
+ 
+    def intersection(self,other):
+        """
+        :param other: an automaton
+        :return: a new automaton whose language is the intersection
+        """
+        # To be completed
+        if self.is_empty(): return self
+        if other.is_empty(): return other
+
+        new_states = {(s,t) for s in self.states for t in other.states}
+        new_ini = {(s,t) for s in self.ini for t in other.ini}
+        new_final = {(s,t) for s in self.final for t in other.final}
+        
+        A = Automata(self.alphabet, new_states, {}, new_ini, new_final)
+
+        for source in new_states:
+            # Si les deux sommets admettent des transitions sortantes
+            if source[0] in self.trans and source[1] in other.trans: 
+                # Pour toute transition sortante "label"
+                for label in self.trans[source[0]]:  
+                    if label in self.trans[source[0]]:
+                        # On recupère les noeuds atteint par "label" depuis source[0] dans self 
+                        # et depuis source[1] dans other, on rajoute les couples 
+                        # du produit cartésien au transition
+                        targets_self = self.compute_next(set([source[0]]), label)
+                        targets_other = other.compute_next(set([source[1]]), label)
+                        all_targets = {(s,t) for s in targets_self for t in targets_other}
+                    # Pour tout ces noeuds, on rajoute la transition (source, label, target) 
+                    for targets in all_targets:
+                        A.add_transition(source, label, targets)
+        return A
+tjrs certainement trop compliqué
+Beline_21 — 03/07/2023 11:00 PM
+Bonsoir tout le monde, désolée de vous déranger, est ce que quelqu'un aurait l'aimable gentillesse de m'envoyer le TD 6 que vous avez fait aujourd'hui, s'il vous plaît ?
+Tututututututhur Sandstorm — 03/07/2023 11:36 PM
+Pas fait :/
+Beline_21 — 03/07/2023 11:53 PM
+Pas de soucis, merci quand même !
+Tututututututhur Sandstorm — Yesterday at 3:48 PM
+from automata import Automata
+
+# Construction d'un premier automate
+Sigma = {'a', 'b'}
+states = {0, 1, 2}
+trans = {
+    0: {'a': {1}},
+    1: {'b': {1, 2}, 'a': {1}}
+}
+ini = {0}
+final = {2}
+# A l'aide du constructeur de la classe
+A = Automata(Sigma, states, trans, ini, final)
+print(A)
+
+# Construction du même automate
+# à l'aide des méthodes de la classe
+Abis = Automata(Sigma, set(), {}, set(), set())
+print(Abis)
+Abis.add_state(0)
+Abis.add_state(1)
+Abis.add_state(2)
+Abis.set_initial(0)
+Abis.set_final(2)
+Abis.add_transition(0, 'a', 1)
+Abis.add_transition(1, 'a', 1)
+Abis.add_transition(1, 'b', 1)
+Abis.add_transition(1, 'b', 2)
+print(Abis)
+
+# print(Abis.is_complete(True))
+# print(Abis.compute_next({0},"b"))
+# print("aaaaabbbbbb accepté? ", Abis.accept("aaaaabbbbbb"))
+# print("b accepté? ", Abis.accept("b"))
+# print("epsilon accepté? ", Abis.accept(""))
+# print("Reachable_states of Abis: ", Abis.reachable_states())
+print("Is L(Abis) empty ?", Abis.is_empty())
+
+
+"""
+
+# Construction de l'automate de la figure 2
+Sigma = {'a', 'b'}
+states = {0, 1, 2, 3}
+trans = {
+    0: {'a': {0}, 'b' : {0,1}},
+    1: {'a': {2}},
+    2: {'b': {3}},
+    3: {'a': {3}, 'b': {3}}
+}
+ini = {0}
+final = {3}
+# A l'aide du constructeur de la classe
+B = Automata(Sigma, states, trans, ini, final)
+print(B)
+
+# Construction de l'automate de la figure 2
+# à l'aide des méthodes de la classe
+Bbis = Automata(Sigma, set(), {}, set(), set())
+print(Bbis)
+Bbis.add_state(0)
+Bbis.add_state(1)
+Bbis.add_state(2)
+Bbis.add_state(3)
+
+Bbis.set_initial(0)
+Bbis.set_final(3)
+
+Bbis.add_transition(0, 'a', 0)
+Bbis.add_transition(0, 'b', 0)
+Bbis.add_transition(0, 'b', 1)
+Bbis.add_transition(1, 'a', 2)
+Bbis.add_transition(2, 'b', 3)
+Bbis.add_transition(3, 'a', 3)
+Bbis.add_transition(3, 'b', 3)
+print(Bbis)
+
+"""
+
+Collapse
+main.py
+2 KB
+from automata import Automata
+
+
+Sigma = {'a', 'b'}
+states = {0, 1, 2}
+trans = {
+    0: {'a': {1}},
+    1: {'b': {1, 2}, 'a': {1}}
+}
+ini = {0}
+final = {2}
+A = Automata(Sigma, states, trans, ini, final)
+
+ini = {0, 1}
+B = Automata(Sigma, states, trans, ini, final)
+
+trans = {
+    0: {'a': {1}},
+    1: {'b': {2}, 'a': {1}}
+}
+ini = {0}
+
+C = Automata(Sigma, states, trans, ini, final)
+
+trans = {
+    0: {'a': {1}, 'b':{2}},
+    1: {'b': {2}, 'a': {1}},
+    2: {'a': {1,2}, 'b':{0}}
+}
+
+D = Automata(Sigma, states, trans, ini, final)
+
+
+def test_isdeterministic():
+    # A a deux transitions à partir de 1 sur b
+    assert(A.is_deterministic() == False)
+    # B a deux états initiaux
+    assert(B.is_deterministic() == False)
+    # C est déterministe
+    assert(C.is_deterministic() == True)
+
+def test_iscomplete():
+    assert(A.is_complete() == False)
+    assert(D.is_complete() == True)
+    return
+
+def test_compute_next():
+    X = {1,2}
+    letter = 'a'
+    Y = {1}
+    assert(A.compute_next(X,letter) == Y)
+    letter = 'b'
+    assert(A.compute_next(X,letter) == X)
+    return
+
+def test_accept():
+    # à compléter
+    return
+
+test_isdeterministic
+test_iscomplete
+test_compute_next
+Collapse
+test_automata.py
+2 KB
+"""
+
+A class to deal with finite-state automata
+P.-A. Reynier, Feb. 2023
+
+"""
+Expand
+automata.py
+12 KB
+Merci Ayoub&Tuthur <3 — Yesterday at 9:08 PM
+Quelqu’un a la correction du td 3 d’automates svp ?
+boule — Yesterday at 9:08 PM
+Nop personne a fait ce td
+Ni prof ni cm
+Normalement il est exclu du prog dexam
+Merci Ayoub&Tuthur <3 — Yesterday at 9:13 PM
+Ouiiiii
+﻿
+"""
+
+A class to deal with finite-state automata
+P.-A. Reynier, Feb. 2023
+
+"""
+
+import copy
+
+class Automata:
+    def __init__(self, alphabet, states, trans, ini, final):
+        """
+        :param alphabet: set of symbols
+        :param states: set of states
+        :param trans: dictionary giving transitions
+        :param ini: set of initial states
+        :param final: set of final states
+        """
+        self.alphabet = alphabet
+        self.states = states
+        self.trans = trans
+        self.ini = ini
+        self.final = final
+
+
+    def add_state(self, state):
+        """
+        :param state: state to be added
+        :return: 1 if state successfuly added, 0 otw
+        """
+        if state in self.states:
+            print("Error while adding state: already present")
+            return 0
+        try: 
+            self.states.add(state)
+        except:
+            print("Error while adding state: set error")
+            return 0
+        return 1
+
+
+    def add_transition(self, source, label, target): 
+        """
+        :param source: source state
+        :param label: label of the transition
+        :param target: target state
+        :return: 1 if transition successfuly added, 0 otw
+        """
+        if source not in self.states:
+            print("Error while adding transition: source state not in states")
+            return 0
+        if target not in self.states:
+            print("Error while adding transition: target state not in states")
+            return 0
+        if label not in self.alphabet:
+            print("Error while adding transition: label not in alphabet")
+            return 0
+        # source is not a key of self.trans
+        if source not in self.trans:
+            self.trans[source] = {}
+            self.trans[source][label]={target}
+        # source is a key of self.trans
+        else:
+            # label is not a key of self.trans[source]
+            if label not in self.trans[source]:
+                self.trans[source][label]={target}
+            # label is a key of self.trans[source]
+            else:
+                self.trans[source][label].add(target)
+        return 1               
+
+
+    def set_initial(self,state):
+        """
+        :param state: a state
+        :return: 1 if modification suceeded, 0 otw
+        """
+        if state in self.states:
+            self.ini.add(state)
+            return 1
+        else:
+            return 0
+
+
+    def set_final(self,state):
+        """
+        :param state: a state
+        :return: 1 if modification suceeded, 0 otw
+        """
+        if state in self.states:
+            self.final.add(state)
+            return 1
+        else:
+            return 0
+
+
+    def __str__(self):
+        """ Overrides print function """
+        res = "Display Automaton\n"
+        res += "Alphabet: " + str(self.alphabet) +"\n"
+        res += "Set of states: "+str(self.states) +"\n"
+        res += "Initial states "+str(self.ini) + "\n"
+        res += "Final states "+str(self.final) + "\n"
+        res += "Transitions:"+"\n"
+        for source in self.trans:
+            for label in self.trans[source]:
+                for target in self.trans[source][label]:
+                    res += "Transition from "+str(source)+" to "+str(target)+" labelled by "+str(label)+"\n"
+        return res
+
+
+    def is_deterministic(self, verbose = False):
+        """
+        :return: True if the automaton is deterministic, False otherwise
+        """
+        # Checks the number of initial states
+        if len(self.ini) != 1:
+            if (verbose) : print("Too many initial states")
+            return False
+        # Loop over source states
+        for source in self.trans:
+            # Loop over labels
+            for label in self.trans[source]:
+                # Check whether there are two transitions with same
+                # source state and label
+                if len(self.trans[source][label]) > 1:
+                    if (verbose) : print("Too many outgoing transitions from" ,source ,"labelled by", label)
+                    return False
+        return True
+
+
+    def is_complete(self, verbose = False):
         """
         :return: True if the automaton is complete, False otherwise
         """
@@ -21,3 +423,163 @@
                 else: print("There is no transition from", source) 
             correctness = correctness and lettersAreMet
         return correctness
+
+
+    def compute_next(self, X, sigma):
+        """
+        :param X: set of states
+        :param sigma: symbol of the alphabet
+        :return: a set of states corresponding to one-step successors of X by reading sigma
+        """
+        res = set()
+        for source in X:
+            if source in self.trans:
+                for label in self.trans[source]:
+                    if label in self.trans[source]:
+                        for target in self.trans[source][label]:
+                            if (label == sigma):
+                                res.add(target)
+        return res
+
+
+    def accept(self, word):
+        """
+        :param word: string on the alphabet
+        :return: True if word is accepted, False otw
+        """
+        if (word == ""):
+            return (self.ini == self.final)
+        X = self.ini
+        for i in range(len(word)):
+            X  = self.compute_next(X, word[i])
+        if (X.intersection(self.final) == set()):
+            return False
+        # To be completed
+        return True
+
+
+    def reachable_states(self):
+        """
+        Computes the of states reachable from the initial ones
+        :return: the set of reachable states
+        """
+        X = self.ini
+        Y = set()
+        while (X != Y):
+            Y = X
+            for sigma in self.alphabet:
+                X = X|(self.compute_next(X, sigma))
+        # To be completed
+        return X
+
+
+    def is_empty(self):
+        """
+        Checks whether the automaton accepts no word. Proceeds by checking
+        whether there exists a final state reachable from an initial one.
+        :return: True if the language of the automaton is empty, False otherwise
+        """
+        # To be completed
+        
+        return self.reachable_states()&(self.final) == set()
+
+
+    def intersection(self,other):
+        """
+        :param other: an automaton
+        :return: a new automaton whose language is the intersection
+        """
+        # To be completed
+        if self.is_empty(): return self
+        if other.is_empty(): return other
+
+        new_states = {(s,t) for s in self.states for t in other.states}
+        new_ini = {(s,t) for s in self.ini for t in other.ini}
+        new_final = {(s,t) for s in self.final for t in other.final}
+        
+        A = Automata(self.alphabet, new_states, {}, new_ini, new_final)
+
+        for source in new_states:
+            # Si les deux sommets admettent des transitions sortantes
+            if source[0] in self.trans and source[1] in other.trans: 
+                # Pour toute transition sortante "label"
+                for label in self.trans[source[0]]:  
+                    if label in self.trans[source[0]]:
+                        # On recupère les noeuds atteint par "label" depuis source[0] dans self 
+                        # et depuis source[1] dans other, on rajoute les couples 
+                        # du produit cartésien au transition
+                        targets_self = self.compute_next(set([source[0]]), label)
+                        targets_other = other.compute_next(set([source[1]]), label)
+                        all_targets = {(s,t) for s in targets_self for t in targets_other}
+                    # Pour tout ces noeuds, on rajoute la transition (source, label, target) 
+                    for targets in all_targets:
+                        A.add_transition(source, label, targets)
+        return A
+
+
+    def union(self,other):
+        """
+        :param other: an automaton
+        :return: a new automaton whose language is the union
+        """
+        if self.is_empty(): return other
+        if other.is_empty(): return self
+
+        new_states = {(s,0) for s in self.states} | {(s,1) for s in other.states}
+        new_ini = {(s,0) for s in self.ini} | {(s,1) for s in other.ini}
+        new_final = {(s,0) for s in self.final} | {(s,1) for s in other.final}
+        
+        A = Automata(self.alphabet, new_states, {}, new_ini, new_final)
+
+        for source in new_states:
+            if source[1] == 0 :     # dans premier automate
+                if source[0] in self.trans:
+                    for label in self.trans[source[0]]:
+                        if label in self.trans[source[0]]:
+                            for target in self.trans[source[0]][label]:
+                                A.add_transition(source, label, (target,0))
+            
+            if source[1] == 1 :     # dans deuxième automate
+                if source[0] in other.trans:
+                    for label in other.trans[source[0]]:
+                        if label in other.trans[source[0]]:
+                            for target in other.trans[source[0]][label]:
+                                A.add_transition(source, label, (target,1))
+        return A
+
+    def complement_DFA(self):
+        """
+        On suppose l'automate Deterministe et complet
+        :return: le complémentaire de l'automate
+        """
+        new_final = self.states - self.final
+        return Automata(self.alphabet, self.states, self.trans, self.ini, new_final)
+    
+    def check_inclusion_DFA(self, other):
+
+        """
+        :return: True si le langage de l'automate est inclus dans celui d'other (qui est deterministe et complet)
+        Soit A et B deux automate. L(A) inclus dans L(B) si L(A) inter complementaire de L(B) est vide.
+        De même avec les automates.
+        """
+        return self.inter(other.complement_DFA()).is_empty()
+    
+
+    def mirror(self):
+        """
+        :return: un automate aux transitions inversés.
+        """
+        A = Automata(self.alphabet, self.states, {}, self.ini, self.final)
+        for state in self.states:
+            for sigma in self.alphabet:
+                A.trans[state][sigma] = {}
+        for source in self.trans:
+            if source in self.trans:
+                for label in self.trans[source]:
+                    if label in self.trans[source]:
+                        for target in self.trans[source][label]:
+                            A.trans[target][label] = source
+        return A
+
+automata.py
+12 KB

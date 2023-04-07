@@ -174,13 +174,14 @@ class Automata:
         :return: a set of states corresponding to one-step successors of X by reading sigma
         """
         res = set()
-        for source in X:
-            if source in self.trans:
-                for label in self.trans[source]:
-                    if label in self.trans[source]:
-                        for target in self.trans[source][label]:
-                            if (label == sigma):
-                                res.add(target)
+        if isinstance(X,int):
+            return self.trans[X][sigma]
+        
+        for state in X:
+            if state in self.trans:
+                if sigma in self.trans[state]:
+                    nextState=self.trans[state][sigma]
+                    res.update(nextState)
         return res
 
 
@@ -369,59 +370,3 @@ class Automata:
         return Automata(self.alphabet,self.useful_states,newTrans,(self.ini).intersection(useful),self.final.intersection(useful))
         
             
-    def determinize(self):
-        """
-        param: self
-        return: returns a the equivalent deterministic aytomaton to self
-        
-        """
-        
-        sigma = self.alphabet
-        ini = {0}
-        trans= {}
-        final =set()
-        Explored = [self.ini]
-        WaitList = []
-        
-        for sig in self.alphabet:
-            WaitList.append((0,sig))
-        
-        while WaitList != []:
-            
-            (X,Label) =WaitList.pop()
-     
-            Y =self.compute_next(Explored[X],Label)
-            
-            if Y not in Explored :
-                Explored.append(Y)
-                addition = [(Explored.index(Y),sig) for sig in self.alphabet]
-                WaitList = WaitList + addition
-            if not(X in trans.keys()):
-                trans[X]={}
-            if not(Label in trans[X]):
-                trans[X][Label]=set()
-            trans[X][Label].add(Explored.index(Y))
-        
-        for X in Explored:
-            if not(X in self.final):
-                final.add(Explored.index(X))
-        B=Automata(sigma,Explored,trans,ini,final)
-
-        return B
-   
-    def check_inclusion(self,other):
-        """
-        param: other automaton
-        return: returns true if self is included in other
-        
-        """
-        return self.determinize().check_inclusion_DFA(other.determinize())
-        
-    def check_equivalence(self,other):
-        
-        """
-        param: other automaton
-        return: returns true if self is equivalent to other   
-        
-        """
-        return self.determinize().check_equivalence_DFA(other.determinize())
